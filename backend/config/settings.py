@@ -8,7 +8,9 @@ load_dotenv()
 BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.getenv("DJANGO_SECRET_KEY", "dev-only-change-this-secret-key")
 DEBUG = os.getenv("DEBUG", "True").lower() in {"1", "true", "yes"}
-ALLOWED_HOSTS = [host.strip() for host in os.getenv("ALLOWED_HOSTS", "portfolio-1-tau-mauve.vercel.app").split(",") if host.strip()]
+ALLOWED_HOSTS = [host.strip() for host in os.getenv("ALLOWED_HOSTS", "").split(",") if host.strip()]
+if "portfolio-1-tau-mauve.vercel.app" not in ALLOWED_HOSTS:
+    ALLOWED_HOSTS.append("portfolio-1-tau-mauve.vercel.app")
 CSRF_TRUSTED_ORIGINS = [origin.strip() for origin in os.getenv("CSRF_TRUSTED_ORIGINS", "http://localhost:8000,http://127.0.0.1:8000").split(",") if origin.strip()]
 
 if os.getenv("SECURE_PROXY_SSL_HEADER", "").lower() in {"1", "true", "yes"}:
