@@ -1,0 +1,20 @@
+{% load static %}<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Nimesh Rai — Python Backend Developer building REST APIs, efficient backend systems, and practical software.">
+  <meta name="theme-color" content="#08090d">
+  <meta name="color-scheme" content="dark">
+  <title>{% block title %}Nimesh Rai · Python Backend Developer{% endblock %}</title>
+  <link rel="stylesheet" href="{% static 'portfolio/site.css' %}">
+  <script src="{% static 'portfolio/site.js' %}" defer></script>
+</head>
+<body>
+<a class="skip-link" href="#main-content">Skip to content</a>
+<canvas class="web-shooter" id="web-shooter" aria-hidden="true"></canvas>
+<div class="ambient ambient-one" aria-hidden="true"></div><div class="ambient ambient-two" aria-hidden="true"></div>
+<header class="topbar"><a class="wordmark" href="{% url 'home' %}" aria-label="Nimesh Rai home">NR<span>.</span></a><nav aria-label="Main navigation"><a href="/#about">About</a><a href="/#work">Projects</a><a href="/#skills">Skills</a><a href="/#contact">Contact</a></nav><a class="nav-cta" href="mailto:{% if profile %}{{ profile.email }}{% else %}nimeshraivibes@gmail.com{% endif %}">Let's talk <span aria-hidden="true">↗</span></a></header>
+<main id="main-content">{% if messages %}<div class="flash-wrap">{% for message in messages %}<p class="flash {{ message.tags }}" role="status">{{ message }}</p>{% endfor %}</div>{% endif %}{% block content %}{% endblock %}</main>
+<footer class="footer"><span>© {% now "Y" %} Nimesh Rai</span><span>Python · Django · REST APIs · PostgreSQL</span><a href="#top">Back to top ↑</a></footer>
+</body></html>
