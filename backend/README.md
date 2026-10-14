@@ -60,7 +60,16 @@ python manage.py test portfolio
 python manage.py collectstatic --noinput
 ```
 
-For deployment, set a strong `DJANGO_SECRET_KEY`, `DEBUG=False`, `ALLOWED_HOSTS`, and a PostgreSQL `DATABASE_URL`. Terminate HTTPS at your platform/load balancer. Never commit `.env` files or production secrets.
+### Vercel deployment
+
+SQLite is for local development only. Vercel's deployed filesystem is not a persistent, writable database, so configure a hosted PostgreSQL database before deploying:
+
+1. In Vercel, open the project **Settings → Environment Variables** and add `DATABASE_URL` with the PostgreSQL connection string. Select the Production environment (and Preview too, if previews need the database). Do not commit this value or paste it into chat.
+2. Set `DJANGO_SECRET_KEY` to a unique production secret, `DEBUG` to `False`, and `CSRF_TRUSTED_ORIGINS` to `https://portfolio-1-tau-mauve.vercel.app`. `ALLOWED_HOSTS` already includes the Vercel hostname.
+3. Apply the schema to that database by running `python manage.py migrate` from `backend/` with the same `DATABASE_URL` set in your shell. Run `python manage.py seed_portfolio` if the database needs the starter portfolio content.
+4. Redeploy the Vercel project after saving its environment variables.
+
+Set real SMTP credentials in Vercel only if contact email delivery is required. Never commit `.env` files or production secrets. Terminate HTTPS at the platform and review `python manage.py check --deploy` before going live.
 
 ## Algorithm note
 
