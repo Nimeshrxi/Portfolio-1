@@ -1,20 +1,30 @@
 """Secure, environment-driven Django settings for the portfolio."""
 import os
 from pathlib import Path
+from urllib.parse import urlsplit
+
+from django.core.exceptions import ImproperlyConfigured
 from dotenv import load_dotenv
 import dj_database_url
 
 load_dotenv()
 BASE_DIR = Path(__file__).resolve().parent.parent
+IS_VERCEL = os.getenv("VERCEL") == "1"
 SECRET_KEY = os.getenv("DJANGO_SECRET_KEY", "dev-only-change-this-secret-key")
-DEBUG = os.getenv("DEBUG", "False").lower() in {"1", "true", "yes"}
+if IS_VERCEL and (not os.getenv("DJANGO_SECRET_KEY") or SECRET_KEY == "dev-only-change-this-secret-key"):
+    raise ImproperlyConfigured("Set a unique DJANGO_SECRET_KEY in the Vercel environment.")
+DEBUG = not IS_VERCEL and os.getenv("DEBUG", "False").lower() in {"1", "true", "yes"}
 ALLOWED_HOSTS = [host.strip() for host in os.getenv("ALLOWED_HOSTS", "").split(",") if host.strip()]
-for host in ("portfolio-1-tau-mauve.vercel.app", os.getenv("VERCEL_URL", "").strip()):
+VERCEL_URL = os.getenv("VERCEL_URL", "").strip()
+for host in ("portfolio-1-tau-mauve.vercel.app", VERCEL_URL):
     if host and host not in ALLOWED_HOSTS:
         ALLOWED_HOSTS.append(host)
 CSRF_TRUSTED_ORIGINS = [origin.strip() for origin in os.getenv("CSRF_TRUSTED_ORIGINS", "http://localhost:8000,http://127.0.0.1:8000").split(",") if origin.strip()]
+for origin in ("https://portfolio-1-tau-mauve.vercel.app", f"https://{VERCEL_URL}" if VERCEL_URL else ""):
+    if origin and origin not in CSRF_TRUSTED_ORIGINS:
+        CSRF_TRUSTED_ORIGINS.append(origin)
 
-if os.getenv("SECURE_PROXY_SSL_HEADER", "").lower() in {"1", "true", "yes"}:
+if IS_VERCEL or os.getenv("SECURE_PROXY_SSL_HEADER", "").lower() in {"1", "true", "yes"}:
     SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
 INSTALLED_APPS = [
@@ -35,8 +45,21 @@ ASGI_APPLICATION = "config.asgi.application"
 
 _database_url = os.getenv("DATABASE_URL", "").strip()
 if _database_url:
+    _database_parts = urlsplit(_database_url)
+    if IS_VERCEL and (
+        _database_parts.scheme not in {"postgres", "postgresql"}
+        or _database_parts.hostname in {"localhost", "127.0.0.1", "::1"}
+        or not _database_parts.hostname
+    ):
+        raise ImproperlyConfigured(
+            "On Vercel, DATABASE_URL must point to a remotely reachable PostgreSQL database."
+        )
     DATABASES = {"default": dj_database_url.parse(_database_url, conn_max_age=600, ssl_require=not DEBUG)}
 else:
+    if IS_VERCEL:
+        raise ImproperlyConfigured(
+            "DATABASE_URL is required on Vercel. Configure a remotely reachable PostgreSQL database."
+        )
     DATABASES = {"default": {"ENGINE": "django.db.backends.sqlite3", "NAME": BASE_DIR / "db.sqlite3", "OPTIONS": {"timeout": 20}}}
 
 AUTH_PASSWORD_VALIDATORS = [

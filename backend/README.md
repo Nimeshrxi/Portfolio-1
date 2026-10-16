@@ -62,9 +62,9 @@ python manage.py collectstatic --noinput
 
 ### Vercel deployment
 
-SQLite is for local development only. Vercel's deployed filesystem is not a persistent, writable database, so configure a hosted PostgreSQL database before deploying:
+SQLite and PostgreSQL on `localhost` are for local development only. Vercel cannot reach a database running on your computer, and its deployed filesystem is not a persistent, writable database. Configure a remotely reachable hosted PostgreSQL database before deploying; the app now rejects a missing or localhost `DATABASE_URL` on Vercel instead of silently falling back to SQLite.
 
-1. In Vercel, open the project **Settings → Environment Variables** and add `DATABASE_URL` with the PostgreSQL connection string. Select the Production environment (and Preview too, if previews need the database). Do not commit this value or paste it into chat.
+1. Create a hosted PostgreSQL database and copy its connection string from the provider dashboard. In Vercel, open the project **Settings → Environment Variables** and add it as `DATABASE_URL`. Select the Production environment (and Preview too, if previews need the database). A connection string whose host is `localhost` will not work. Do not commit this value or paste it into chat.
 2. Set `DJANGO_SECRET_KEY` to a unique production secret, `DEBUG` to `False`, and `CSRF_TRUSTED_ORIGINS` to `https://portfolio-1-tau-mauve.vercel.app`. `ALLOWED_HOSTS` already includes the Vercel hostname.
 3. Apply the schema to that database by running `python manage.py migrate` from `backend/` with the same `DATABASE_URL` set in your shell. Run `python manage.py seed_portfolio` if the database needs the starter portfolio content.
 4. Redeploy the Vercel project after saving its environment variables.
