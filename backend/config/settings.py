@@ -10,8 +10,12 @@ import dj_database_url
 load_dotenv()
 BASE_DIR = Path(__file__).resolve().parent.parent
 IS_VERCEL = os.getenv("VERCEL") == "1"
-SECRET_KEY = os.getenv("DJANGO_SECRET_KEY", "dev-only-change-this-secret-key")
-if IS_VERCEL and (not os.getenv("DJANGO_SECRET_KEY") or SECRET_KEY == "dev-only-change-this-secret-key"):
+SECRET_KEY = os.getenv("DJANGO_SECRET_KEY", "dev-only-change-this-secret-key").strip()
+if IS_VERCEL and (
+    SECRET_KEY == "dev-only-change-this-secret-key"
+    or SECRET_KEY.startswith("replace-with-")
+    or len(SECRET_KEY) < 50
+):
     raise ImproperlyConfigured("Set a unique DJANGO_SECRET_KEY in the Vercel environment.")
 DEBUG = not IS_VERCEL and os.getenv("DEBUG", "False").lower() in {"1", "true", "yes"}
 ALLOWED_HOSTS = [host.strip() for host in os.getenv("ALLOWED_HOSTS", "").split(",") if host.strip()]
@@ -99,6 +103,7 @@ if not DEBUG:
     SECURE_SSL_REDIRECT = os.getenv("SECURE_SSL_REDIRECT", "True").lower() == "true"
     SESSION_COOKIE_SECURE = True
     CSRF_COOKIE_SECURE = True
+    SECURE_HSTS_SECONDS = 31536000
     SECURE_CONTENT_TYPE_NOSNIFF = True
     SECURE_REFERRER_POLICY = "same-origin"
     X_FRAME_OPTIONS = "DENY"
