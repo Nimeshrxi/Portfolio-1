@@ -28,3 +28,13 @@ class PortfolioPageTests(TestCase):
     def test_project_api_is_read_only(self):
         response = Client().get("/api/portfolio/projects/")
         self.assertEqual(response.status_code, 200)
+
+    def test_search_api_uses_default_limit_when_limit_is_blank(self):
+        response = Client().get("/api/portfolio/search/", {"q": "OwnMeet", "limit": ""})
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()["count"], 1)
+
+    def test_search_api_rejects_non_integer_limit(self):
+        response = Client().get("/api/portfolio/search/", {"q": "OwnMeet", "limit": "invalid"})
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.json()["detail"], "limit must be an integer between 1 and 100.")

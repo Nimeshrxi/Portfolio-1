@@ -95,8 +95,9 @@ def search_api(request):
     query = request.query_params.get("q", "").strip()[:100]
     if not query:
         return Response({"count": 0, "results": []})
+    limit_value = request.query_params.get("limit", "").strip()
     try:
-        limit = min(max(int(request.query_params.get("limit", 20)), 1), 100)
+        limit = min(max(int(limit_value or 20), 1), 100)
     except ValueError:
         return Response({"detail": "limit must be an integer between 1 and 100."}, status=status.HTTP_400_BAD_REQUEST)
     results = _index().search(query, limit)
