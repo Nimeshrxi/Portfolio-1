@@ -23,6 +23,7 @@ class PortfolioPageTests(TestCase):
         response = Client().get(reverse("home"))
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Nimesh Rai")
+        self.assertContains(response, 'src="/_vercel/speed-insights/script.js"')
         self.assertNotContains(response, "<img", html=False)
 
     def test_project_api_is_read_only(self):

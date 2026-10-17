@@ -17,4 +17,8 @@
 <header class="topbar"><a class="wordmark" href="{% url 'home' %}" aria-label="Nimesh Rai home">NR<span>.</span></a><nav aria-label="Main navigation"><a href="/#about">About</a><a href="/#work">Projects</a><a href="/#skills">Skills</a><a href="/#contact">Contact</a></nav><a class="nav-cta" href="mailto:{% if profile %}{{ profile.email }}{% else %}nimeshraivibes@gmail.com{% endif %}">Let's talk <span aria-hidden="true">↗</span></a></header>
 <main id="main-content">{% if messages %}<div class="flash-wrap">{% for message in messages %}<p class="flash {{ message.tags }}" role="status">{{ message }}</p>{% endfor %}</div>{% endif %}{% block content %}{% endblock %}</main>
 <footer class="footer"><span>© {% now "Y" %} Nimesh Rai</span><span>Python · Django · REST APIs · PostgreSQL</span><a href="#top">Back to top ↑</a></footer>
+<script>
+  window.si = window.si || function () { (window.siq = window.siq || []).push(arguments); };
+</script>
+<script defer src="/_vercel/speed-insights/script.js"></script>
 </body></html>
